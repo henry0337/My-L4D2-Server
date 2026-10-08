@@ -3,7 +3,7 @@ IncludeScript("src/VSLib");
 ::UserCvars <-
 {
     survivor_allow_crawling = 1,
-    survivor_crawl_speed = 60,
+    survivor_crawl_speed = 40,
     sv_consistency = 0
 };
 

@@ -1,4 +1,4 @@
-IncludeScript("src/VSLib");
+IncludeScript("src/Shared/shared");
 IncludeScript("src/Moderation/localization");
 
 ::MOD_KickWarnSeconds <- 10;

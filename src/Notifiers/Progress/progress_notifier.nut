@@ -1,4 +1,4 @@
-IncludeScript("src/VSLib");
+IncludeScript("src/Shared/shared");
 IncludeScript("src/Notifiers/Progress/localization");
 
 ::CPN_Milestones <- [25, 50, 75];
@@ -6,46 +6,9 @@ IncludeScript("src/Notifiers/Progress/localization");
 ::CPN_PollInterval <- 1.0;
 ::CPN_Reached <- {};
 
-::CPN_ReplaceLiteral <- function (str, needle, value)
-{
-    if (needle.len() == 0) return str;
-
-    local out = "";
-    local start = 0;
-    local pos;
-    while ((pos = str.find(needle, start)) != null)
-    {
-        out += str.slice(start, pos) + value;
-        start = pos + needle.len();
-    }
-    out += str.slice(start);
-    return out;
-}
-
 ::CPN_Loc <- function (sMessageKey, sClientLang, tSubs = null)
 {
-    local sFallback = ::CPN_Locale.fallback;
-    local sLangCode = (sClientLang in ::CPN_Locale.languages) ? ::CPN_Locale.languages[sClientLang] : sFallback;
-
-    if (!(sMessageKey in ::CPN_Locale.strings))
-    {
-        return sMessageKey;
-    }
-
-    local tVariants = ::CPN_Locale.strings[sMessageKey];
-    local sText = (sLangCode in tVariants) 
-                    ? tVariants[sLangCode]
-                    : ((sFallback in tVariants) ? tVariants[sFallback] : sMessageKey);
-
-    if (tSubs != null)
-    {
-        foreach (sName, val in tSubs)
-        {
-            sText = ::CPN_ReplaceLiteral(sText, "{" + sName + "}", val.tostring());
-        }
-    }
-
-    return sText;
+    return ::Shared.Localization.Resolve(::CPN_Locale, sMessageKey, sClientLang, tSubs);
 }
 
 ::CPN_AnnounceTo <- function (player, iProgress)

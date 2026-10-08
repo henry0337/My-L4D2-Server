@@ -1,4 +1,4 @@
-IncludeScript("src/VSLib");
+IncludeScript("src/Shared/shared");
 
 ::WC_DR_Exclude <-
 {
@@ -13,23 +13,12 @@ IncludeScript("src/VSLib");
 ::WC_DR_Verbose <- true;
 ::WC_DR_State <- {};
 
-::WC_DR_GetPrimary <- function (player)
-{
-    local t = player.GetHeldItems();
-    if (t == null || !("slot0" in t)) return null;
-
-    local wep = t["slot0"];
-    if (wep == null || !wep.IsEntityValid()) return null;
-
-    return wep;
-}
-
 ::WC_DR_ProcessPlayer <- function (player)
 {
     if (player == null || !player.IsPlayerEntityValid()) return;
 
     local iUid = player.GetUserID();
-    local wep = ::WC_DR_GetPrimary(player);
+    local wep = ::Shared.Players.GetPrimary(player);
 
     if (wep == null || (wep.GetClassname() in ::WC_DR_Exclude))
     {

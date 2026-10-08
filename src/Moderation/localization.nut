@@ -92,33 +92,7 @@
     },
 };
 
-::MOD_ReplaceLiteral <- function (str, needle, value)
-{
-    if (needle.len() == 0) return str;
-
-    local out = "", start = 0, pos;
-    while ((pos = str.find(needle, start)) != null)
-    {
-        out += str.slice(start, pos) + value;
-        start = pos + needle.len();
-    }
-    return out + str.slice(start);
-}
-
 ::MOD_Loc <- function (sMessageKey, sClientLang, tSubs = null)
 {
-    local sFallback = ::MOD_Locale.fallback;
-    local sLangCode = (sClientLang in ::MOD_Locale.languages) ? ::MOD_Locale.languages[sClientLang] : sFallback;
-
-    if (!(sMessageKey in ::MOD_Locale.strings)) return sMessageKey;
-
-    local tVariants = ::MOD_Locale.strings[sMessageKey];
-    local sText = (sLangCode in tVariants) ? tVariants[sLangCode]
-                : ((sFallback in tVariants) ? tVariants[sFallback] : sMessageKey);
-
-    if (tSubs != null)
-        foreach (sName, val in tSubs)
-            sText = ::MOD_ReplaceLiteral(sText, "{" + sName + "}", val.tostring());
-
-    return sText;
+    return ::Shared.Localization.Resolve(::MOD_Locale, sMessageKey, sClientLang, tSubs);
 }

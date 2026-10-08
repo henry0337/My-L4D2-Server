@@ -86,13 +86,13 @@
         },
         weapon_pumpshotgun =
         {
-            en = "Remington M870 (Pump-Action)",
+            en = "Remington M870",
             vi = "Remington M870",
             ja = "レミントンM870",
         },
         weapon_shotgun_chrome =
         {
-            en = "Remington M870 (Chrome)",
+            en = "Remington M870",
             vi = "Remington M870",
             ja = "レミントンM870",
         },

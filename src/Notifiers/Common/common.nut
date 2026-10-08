@@ -1,31 +1,13 @@
-IncludeScript("src/VSLib");
+IncludeScript("src/Shared/shared");
 IncludeScript("src/Notifiers/Common/localization");
 
-::NTF_LIGHT_GREEN <- "\x03";
-::NTF_MaxMessageBytes <- 200;
 ::NTF_SoundDelaySec <- 2;
 ::NTF_NextSoundTime <- 0;
 ::NTF_L4D1_SURVIVOR_SET <- 1;
 
 ::NTF_RegisterStrings <- function (tStrings)
 {
-    foreach (sKey, tVariants in tStrings)
-    {
-        ::NTF_Locale.strings[sKey] <- tVariants;
-    }
-}
-
-::NTF_IsValidPlayer <- function (player)
-{
-    return player != null && player.IsPlayerEntityValid();
-}
-
-::NTF_GetPlayer <- function (userId)
-{
-    if (userId == null || userId == 0) return null;
-
-    local player = ::VSLib.Utils.GetPlayerFromUserID(userId);
-    return ::NTF_IsValidPlayer(player) ? player : null;
+    ::Shared.Localization.Register(::NTF_Locale, tStrings);
 }
 
 ::NTF_GetActiveWeaponKey <- function (player)
@@ -55,57 +37,9 @@ IncludeScript("src/Notifiers/Common/localization");
     return (sKey in ::NTF_Locale.strings) ? { key = sKey } : sName;
 }
 
-::NTF_FormatPercent <- function (fValue)
-{
-    local sText = format("%.1f", fValue);
-    return (sText.slice(-2) == ".0") ? sText.slice(0, -2) : sText;
-}
-
-::NTF_ReplaceLiteral <- function (str, needle, value)
-{
-    local out = "";
-    local start = 0;
-    local pos;
-    while ((pos = str.find(needle, start)) != null)
-    {
-        out += str.slice(start, pos) + value;
-        start = pos + needle.len();
-    }
-    out += str.slice(start);
-    return out;
-}
-
 ::NTF_Loc <- function (sMessageKey, sClientLang, tSubs = null)
 {
-    if (!(sMessageKey in ::NTF_Locale.strings))
-    {
-        return sMessageKey;
-    }
-
-    local sFallback = ::NTF_Locale.fallback;
-    local sLangCode = (sClientLang in ::NTF_Locale.languages) ? ::NTF_Locale.languages[sClientLang] : sFallback;
-
-    local tVariants = ::NTF_Locale.strings[sMessageKey];
-    local sText = sMessageKey;
-    if (sLangCode in tVariants)
-    {
-        sText = tVariants[sLangCode];
-    }
-    else if (sFallback in tVariants)
-    {
-        sText = tVariants[sFallback];
-    }
-
-    if (tSubs != null)
-    {
-        foreach (sName, val in tSubs)
-        {
-            local sValue = (typeof val == "table") ? ::NTF_Loc(val.key, sClientLang) : val.tostring();
-            sText = ::NTF_ReplaceLiteral(sText, "{" + sName + "}", sValue);
-        }
-    }
-
-    return sText;
+    return ::Shared.Localization.Resolve(::NTF_Locale, sMessageKey, sClientLang, tSubs);
 }
 
 ::NTF_AppendLocLines <- function (tOut, tLines, sLang)
@@ -116,32 +50,13 @@ IncludeScript("src/Notifiers/Common/localization");
     }
 }
 
-::NTF_PrintChunked <- function (player, tLines)
-{
-    local sChunk = null;
-    foreach (sLine in tLines)
-    {
-        if (sChunk != null && sChunk.len() + 1 + sLine.len() > ::NTF_MaxMessageBytes)
-        {
-            player.Print(::NTF_LIGHT_GREEN + sChunk, HUD_PRINTTALK);
-            sChunk = null;
-        }
-        sChunk = (sChunk == null) ? sLine : sChunk + "\n" + sLine;
-    }
-
-    if (sChunk != null)
-    {
-        player.Print(::NTF_LIGHT_GREEN + sChunk, HUD_PRINTTALK);
-    }
-}
-
 ::NTF_Broadcast <- function (sTagKey, tIntroLines, tStatLines = null)
 {
     foreach (player in ::VSLib.EasyLogic.Players.All())
     {
-        if (!::NTF_IsValidPlayer(player) || player.IsBot()) continue;
+        if (!::Shared.Players.IsValid(player) || player.IsBot()) continue;
 
-        local sLang = player.GetClientConvarValue("cl_language");
+        local sLang = ::Shared.Players.GetLanguage(player);
         local tOut = [::NTF_Loc(sTagKey, sLang)];
         ::NTF_AppendLocLines(tOut, tIntroLines, sLang);
 
@@ -151,7 +66,7 @@ IncludeScript("src/Notifiers/Common/localization");
             ::NTF_AppendLocLines(tOut, tStatLines, sLang);
         }
 
-        ::NTF_PrintChunked(player, tOut);
+        ::Shared.Chat.TargetChat(tOut, player.GetBaseEntity(), CHAT_COLOR_LIGHT_GREEN);
     }
 }
 
@@ -159,11 +74,11 @@ IncludeScript("src/Notifiers/Common/localization");
 {
     foreach (player in ::VSLib.EasyLogic.Players.All())
     {
-        if (!::NTF_IsValidPlayer(player) || player.IsBot()) continue;
+        if (!::Shared.Players.IsValid(player) || player.IsBot()) continue;
 
-        local sLang = player.GetClientConvarValue("cl_language");
+        local sLang = ::Shared.Players.GetLanguage(player);
         local sText = ::NTF_Loc(sTagKey, sLang) + " " + ::NTF_Loc(line.key, sLang, line.subs);
-        player.Print(::NTF_LIGHT_GREEN + sText, HUD_PRINTTALK);
+        player.Print(CHAT_COLOR_LIGHT_GREEN + sText, HUD_PRINTTALK);
     }
 }
 
@@ -206,7 +121,7 @@ IncludeScript("src/Notifiers/Common/localization");
     local tRanking = [];
     foreach (userId, dmg in tDamage)
     {
-        local player = ::NTF_GetPlayer(userId);
+        local player = ::Shared.Players.GetByUserId(userId);
         if (player == null) continue;
 
         tRanking.append({ name = player.GetName(), dmg = dmg * scale });
@@ -228,7 +143,7 @@ IncludeScript("src/Notifiers/Common/localization");
             RANK = i + 1,
             NAME = entry.name,
             DMG = (entry.dmg + 0.5).tointeger(),
-            PERCENT = ::NTF_FormatPercent(entry.dmg / maxHealth * 100)
+            PERCENT = ::Shared.Strings.FormatPercent(entry.dmg / maxHealth * 100)
         }});
     }
 

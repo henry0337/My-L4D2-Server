@@ -27,8 +27,7 @@ IncludeScript("src/Notifiers/Witch/localization");
 
 ::WN_GetDefaultWitchHealth <- function ()
 {
-    local health = Convars.GetFloat("z_witch_health");
-    return (health != null && health > 0) ? health.tointeger() : ::WN_DefaultWitchHealth;
+    return ::Shared.Convar.GetPositiveInt("z_witch_health", ::WN_DefaultWitchHealth);
 }
 
 ::WN_AllMaps <- function ()
@@ -149,7 +148,7 @@ WitchEventNotifier <-
 
         local damage = ::WN_ConsumeHealthDelta(witch, params);
         if (damage <= 0) return;
-        if (::NTF_GetPlayer(params.attacker) == null) return;
+        if (::Shared.Players.GetByUserId(params.attacker) == null) return;
 
         ::NTF_AddDamage(::WN_DamageMap, witch.GetIndex(), params.attacker, damage);
     }
@@ -159,7 +158,7 @@ WitchEventNotifier <-
         if (!("witchid" in params)) return;
 
         local witchIdx = params.witchid;
-        local killer = ::NTF_GetPlayer(("userid" in params) ? params.userid : 0);
+        local killer = ::Shared.Players.GetByUserId(("userid" in params) ? params.userid : 0);
 
         local bBride = (("bride" in params) && params.bride) ? true : null;
         local tWitchName = ::WN_GetVariantName(witchIdx, bBride);

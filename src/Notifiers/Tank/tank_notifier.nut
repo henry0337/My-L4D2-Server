@@ -28,15 +28,14 @@ IncludeScript("src/Notifiers/Tank/localization");
     if (sMode == "versus" || sMode == "scavenge") return 6000;
     if (sMode == "survival") return 4000;
 
-    local sDiff = ::VSLib.Utils.GetDifficulty();
-    return (sDiff in ::TN_DifficultyTankHealth) ? ::TN_DifficultyTankHealth[sDiff] : 4000;
+    return ::Shared.Difficulty.Pick(::TN_DifficultyTankHealth, 4000);
 }
 
 ::TN_TrackTanks <- function (params)
 {
     foreach (tank in ::VSLib.EasyLogic.Players.OfType(Z_TANK))
     {
-        if (!::NTF_IsValidPlayer(tank) || tank.IsDead() || tank.IsIncapacitated()) continue;
+        if (!::Shared.Players.IsValid(tank) || tank.IsDead() || tank.IsIncapacitated()) continue;
 
         local health = ::TN_GetRawHealth(tank);
         if (health <= 0) continue;
@@ -72,7 +71,7 @@ TankEventNotifier <-
     {
         ::NTF_PlayWarnSound(::TN_WarnSound);
 
-        local tank = ::NTF_GetPlayer(params.userid);
+        local tank = ::Shared.Players.GetByUserId(params.userid);
         if (tank != null)
             ::TN_MaxHealth[tank.GetIndex()] <- tank.GetMaxHealth();
 
@@ -81,20 +80,20 @@ TankEventNotifier <-
 
     function OnGameEvent_player_hurt(params)
     {
-        local tank = ::NTF_GetPlayer(params.userid);
+        local tank = ::Shared.Players.GetByUserId(params.userid);
         if (tank == null || tank.GetPlayerType() != Z_TANK) return;
 
         local damage = ::TN_ConsumeHealthDelta(tank, params);
         if (damage <= 0 || tank.IsIncapacitated()) return;
-        if (::NTF_GetPlayer(params.attacker) == null) return;
+        if (::Shared.Players.GetByUserId(params.attacker) == null) return;
 
         ::NTF_AddDamage(::TN_DamageMap, tank.GetIndex(), params.attacker, damage);
     }
 
     function OnGameEvent_tank_killed(params)
     {
-        local tank = ::NTF_GetPlayer(params.userid);
-        local tIntroLines = ::NTF_BuildKillIntro(::NTF_GetPlayer(params.attacker), "tank_killed");
+        local tank = ::Shared.Players.GetByUserId(params.userid);
+        local tIntroLines = ::NTF_BuildKillIntro(::Shared.Players.GetByUserId(params.attacker), "tank_killed");
 
         if (tank == null)
         {
