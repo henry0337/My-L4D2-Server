@@ -1,9 +1,11 @@
-IncludeScript("src/VSLib");
+IncludeScript("src/Shared/shared");
+IncludeScript("src/WeaponCustomizer/guard");
 
 ::WC_M60_Class <- "weapon_rifle_m60";
 ::WC_M60_Clip <- 200;
 ::WC_M60_ReserveGrant <- 200;
 ::WC_M60_ReserveMax <- 200;
+::WC_M60_DefaultReserveMax <- 0;
 ::WC_M60_Verbose <- false;
 ::WC_M60_ReloadUsed <- {};
 ::WC_M60_Inited <- {};
@@ -30,6 +32,7 @@ IncludeScript("src/VSLib");
 
 ::WC_M60_InitWeapon <- function (player, wep)
 {
+    if (::WeaponCustomizer.IsDisabled()) return;
     if (!::WC_M60_IsSurvivor(player)) return;
     if (wep == null || !wep.IsEntityValid()) return;
     if (!::WC_M60_IsM60(wep.GetClassname())) return;
@@ -63,6 +66,7 @@ IncludeScript("src/VSLib");
 
 ::VSLib.EasyLogic.Notifications.OnWeaponReload.WC_M60 <- function (player, manual, params)
 {
+    if (::WeaponCustomizer.IsDisabled()) return;
     if (!::WC_M60_IsSurvivor(player)) return;
 
     local wep = player.GetActiveWeapon();
@@ -99,7 +103,7 @@ IncludeScript("src/VSLib");
 
 ::WC_M60_Apply <- function ()
 {
-    Convars.SetValue("ammo_m60_max", ::WC_M60_ReserveMax);
+    ::WeaponCustomizer.ApplyConvar("ammo_m60_max", ::WC_M60_ReserveMax, ::WC_M60_DefaultReserveMax);
 }
 
 ::VSLib.EasyLogic.Notifications.OnRoundStart.WC_M60 <- function ()

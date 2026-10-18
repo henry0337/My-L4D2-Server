@@ -1,4 +1,5 @@
 IncludeScript("src/Shared/shared");
+IncludeScript("src/WeaponCustomizer/guard");
 
 ::WC_DR_Exclude <-
 {
@@ -7,10 +8,11 @@ IncludeScript("src/Shared/shared");
     weapon_pumpshotgun    = true,
     weapon_shotgun_chrome = true,
     weapon_autoshotgun    = true,
-    weapon_shotgun_spas   = true
+    weapon_shotgun_spas   = true,
+    weapon_grenade_launcher = true
 };
 ::WC_DR_PollInterval <- 0.1;
-::WC_DR_Verbose <- true;
+::WC_DR_Verbose <- false;
 ::WC_DR_State <- {};
 
 ::WC_DR_ProcessPlayer <- function (player)
@@ -84,6 +86,14 @@ IncludeScript("src/Shared/shared");
             prev.pendClip = prev.clip;
             prev.pendReserve = prev.reserve;
         }
+
+        if (iResNow - prev.reserve == prev.clip - iClipNow)
+        {
+            wep.SetAmmo(prev.reserve);
+            prev.clip = iClipNow;
+            return;
+        }
+
         prev.clip = iClipNow;
         prev.reserve = iResNow;
         return;
@@ -97,6 +107,8 @@ IncludeScript("src/Shared/shared");
 
 ::WC_DR_Tick <- function (params)
 {
+    if (::WeaponCustomizer.IsDisabled()) return;
+
     foreach (player in ::VSLib.EasyLogic.Players.AllSurvivors())
     {
         ::WC_DR_ProcessPlayer(player);

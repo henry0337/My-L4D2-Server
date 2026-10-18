@@ -1,16 +1,19 @@
 IncludeScript("src/Shared/shared");
+IncludeScript("src/WeaponCustomizer/guard");
 
 ::WC_GL_ReserveMax <- 10;
+::WC_GL_DefaultReserveMax <- 30;
 ::WC_GL_Class <- "weapon_grenade_launcher";
 ::WC_GL_Verbose <- false;
 
 ::WC_GL_Apply <- function ()
 {
-    Convars.SetValue("ammo_grenadelauncher_max", ::WC_GL_ReserveMax);
+    ::WeaponCustomizer.ApplyConvar("ammo_grenadelauncher_max", ::WC_GL_ReserveMax, ::WC_GL_DefaultReserveMax);
 }
 
 ::VSLib.EasyLogic.Notifications.OnAmmoCantUse.WC_GL <- function (player, params)
 {
+    if (::WeaponCustomizer.IsDisabled()) return;
     if (player == null || !player.IsPlayerEntityValid()) return;
     if (player.GetTeam() != SURVIVORS) return;
 
