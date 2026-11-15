@@ -24,5 +24,24 @@
     IsTankRun = function ()
     {
         return Director.GetGameMode() == "tankrun";
+    },
+
+    /**
+     * Returns true only for the original Campaign mode (game mode "coop").
+     * Realism and every mutation, including Coop-based ones such as Tank Run, return false.
+     */
+    IsCampaign = function ()
+    {
+        return Director.GetGameMode() == "coop";
+    },
+
+    /**
+     * Returns true for the original Campaign ("coop") and Realism modes only.
+     * Every mutation, including Coop-based ones such as Tank Run, returns false.
+     */
+    IsCampaignOrRealism = function ()
+    {
+        local mode = Director.GetGameMode();
+        return mode == "coop" || mode == "realism";
     }
 };

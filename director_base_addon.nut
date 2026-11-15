@@ -9,4 +9,5 @@ IncludeScript("src/WeaponCustomizer/index");
 IncludeScript("src/Moderation/moderation");
 IncludeScript("src/LedgeFix/ledgefix");
 IncludeScript("src/SelfHelp/selfhelp");
+IncludeScript("src/IncapMagnum/incap_magnum");
 IncludeScript("src/WeaponCustomizer/desert_probe");

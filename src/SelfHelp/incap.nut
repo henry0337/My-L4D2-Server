@@ -12,6 +12,13 @@
 
     function revive(player)
     {
-        return player.Revive();
+        local pills = ::SH_GetPills(player);
+
+        if (!player.Revive()) return false;
+        if (pills == null) return true;
+
+        ::SH_ApplyBoost(player, pills.GetClassname());
+        pills.Kill();
+        return true;
     }
 });

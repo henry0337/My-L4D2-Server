@@ -75,7 +75,7 @@ TankEventNotifier <-
         if (tank != null)
             ::TN_MaxHealth[tank.GetIndex()] <- tank.GetMaxHealth();
 
-        ::NTF_BroadcastInline("tag_system", { key = "tank_spawned", subs = null });
+        ::NTF_BroadcastInline({ key = "tank_spawned", subs = null });
     }
 
     function OnGameEvent_player_hurt(params)
@@ -97,7 +97,7 @@ TankEventNotifier <-
 
         if (tank == null)
         {
-            ::NTF_Broadcast("tag_announcer", tIntroLines);
+            ::NTF_Broadcast(tIntroLines);
             return;
         }
 
@@ -106,7 +106,7 @@ TankEventNotifier <-
         local tStatLines = ::NTF_BuildStatLines(::TN_DamageMap, tankIdx, maxHealth);
 
         ::NTF_Forget([::TN_DamageMap, ::TN_LastHealth, ::TN_MaxHealth], tankIdx);
-        ::NTF_Broadcast("tag_announcer", tIntroLines, tStatLines);
+        ::NTF_Broadcast(tIntroLines, tStatLines);
     }
 };
 

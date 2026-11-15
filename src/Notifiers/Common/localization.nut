@@ -11,18 +11,6 @@
 
     strings =
     {
-        tag_announcer =
-        {
-            en = "[Announcer]",
-            vi = "[Thông Báo]",
-            ja = "[アナウンス]",
-        },
-        tag_system =
-        {
-            en = "[System]",
-            vi = "[Hệ Thống]",
-            ja = "[システム]",
-        },
         stats_line =
         {
             en = "\x03[\x04{RANK}\x03]\x04 \x03{NAME}\x04 ({DMG}, {PERCENT}%)",

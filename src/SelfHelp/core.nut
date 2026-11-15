@@ -6,6 +6,14 @@ IncludeScript("src/SelfHelp/localization");
 ::SH_TickInterval <- 0.1;
 ::SH_DefaultReviveDuration <- 5.0;
 ::SH_MedkitClass <- "weapon_first_aid_kit";
+::SH_PillsSlot <- "slot4";
+::SH_Boosts <-
+{
+    weapon_pain_pills = { totalHealth = 100, adrenaline = false },
+    weapon_adrenaline = { totalHealth = 60, adrenaline = true }
+};
+::SH_BoostPermanentHealth <- 1;
+::SH_AdrenalineDefaultDuration <- 15.0;
 
 ::SH_Cases <- {};
 ::SH_CaseOrder <- [];
@@ -49,6 +57,25 @@ IncludeScript("src/SelfHelp/localization");
 ::SH_GetMedkit <- function (player)
 {
     return ::Shared.Players.GetHeldItemOfClass(player, SLOT_HEALTH, ::SH_MedkitClass);
+}
+
+::SH_GetPills <- function (player)
+{
+    local item = ::Shared.Players.GetHeldItem(player, ::SH_PillsSlot);
+    return (item != null && (item.GetClassname() in ::SH_Boosts)) ? item : null;
+}
+
+::SH_ApplyBoost <- function (player, className)
+{
+    local boost = ::SH_Boosts[className];
+
+    if (boost.adrenaline)
+    {
+        player.GiveAdrenaline(::Shared.Convar.GetPositiveFloat("adrenaline_duration", ::SH_AdrenalineDefaultDuration));
+    }
+
+    player.SetRawHealth(::SH_BoostPermanentHealth);
+    player.SetHealthBuffer(boost.totalHealth - ::SH_BoostPermanentHealth);
 }
 
 ::SH_IsSelfOwned <- function (player)
@@ -200,6 +227,15 @@ IncludeScript("src/SelfHelp/localization");
 
 ::SH_Tick <- function (params)
 {
+    if (!::Shared.Mode.IsCampaignOrRealism())
+    {
+        foreach (idx, tState in clone ::SH_Active)
+        {
+            ::SH_Cancel(idx);
+        }
+        return;
+    }
+
     local tSeen = {};
 
     foreach (player in ::VSLib.EasyLogic.Players.Survivors())

@@ -1,6 +1,9 @@
 IncludeScript("src/Shared/shared");
 IncludeScript("src/Notifiers/Common/localization");
 
+const NTF_TAG_INLINE = "[\x01!\x03]";
+const NTF_TAG_STATS = "\x03★\x04";
+
 ::NTF_SoundDelaySec <- 2;
 ::NTF_NextSoundTime <- 0;
 ::NTF_L4D1_SURVIVOR_SET <- 1;
@@ -50,15 +53,19 @@ IncludeScript("src/Notifiers/Common/localization");
     }
 }
 
-::NTF_Broadcast <- function (sTagKey, tIntroLines, tStatLines = null)
+::NTF_Broadcast <- function (tIntroLines, tStatLines = null)
 {
     foreach (player in ::VSLib.EasyLogic.Players.All())
     {
         if (!::Shared.Players.IsValid(player) || player.IsBot()) continue;
 
         local sLang = ::Shared.Players.GetLanguage(player);
-        local tOut = [::NTF_Loc(sTagKey, sLang)];
+        local tOut = [];
         ::NTF_AppendLocLines(tOut, tIntroLines, sLang);
+        if (tOut.len() > 0)
+        {
+            tOut[0] = NTF_TAG_STATS + " " + tOut[0];
+        }
 
         if (tStatLines != null && tStatLines.len() > 0)
         {
@@ -70,14 +77,14 @@ IncludeScript("src/Notifiers/Common/localization");
     }
 }
 
-::NTF_BroadcastInline <- function (sTagKey, line)
+::NTF_BroadcastInline <- function (line)
 {
     foreach (player in ::VSLib.EasyLogic.Players.All())
     {
         if (!::Shared.Players.IsValid(player) || player.IsBot()) continue;
 
         local sLang = ::Shared.Players.GetLanguage(player);
-        local sText = ::NTF_Loc(sTagKey, sLang) + " " + ::NTF_Loc(line.key, sLang, line.subs);
+        local sText = NTF_TAG_INLINE + " " + ::NTF_Loc(line.key, sLang, line.subs);
         player.Print(CHAT_COLOR_LIGHT_GREEN + sText, HUD_PRINTTALK);
     }
 }

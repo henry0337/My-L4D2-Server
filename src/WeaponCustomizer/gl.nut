@@ -1,36 +1,13 @@
-IncludeScript("src/Shared/shared");
-IncludeScript("src/WeaponCustomizer/guard");
+IncludeScript("src/WeaponCustomizer/special_ammo");
 
-::WC_GL_ReserveMax <- 10;
-::WC_GL_DefaultReserveMax <- 30;
-::WC_GL_Class <- "weapon_grenade_launcher";
-::WC_GL_Verbose <- false;
-
-::WC_GL_Apply <- function ()
+::WeaponGrenadeLauncher <- ::SpecialAmmo.Create(
 {
-    ::WeaponCustomizer.ApplyConvar("ammo_grenadelauncher_max", ::WC_GL_ReserveMax, ::WC_GL_DefaultReserveMax);
-}
-
-::VSLib.EasyLogic.Notifications.OnAmmoCantUse.WC_GL <- function (player, params)
-{
-    if (::WeaponCustomizer.IsDisabled()) return;
-    if (player == null || !player.IsPlayerEntityValid()) return;
-    if (player.GetTeam() != SURVIVORS) return;
-
-    local wep = ::Shared.Players.GetHeldItemOfClass(player, SLOT_PRIMARY, ::WC_GL_Class);
-    if (wep == null) return;
-
-    wep.SetAmmo(::WC_GL_ReserveMax);
-
-    if (::WC_GL_Verbose && !player.IsBot())
-    {
-        player.Print("[GL] Đã tiếp đạn từ đống đạn: dự trữ = " + ::WC_GL_ReserveMax, HUD_PRINTTALK);
-    }
-};
-
-::VSLib.EasyLogic.Notifications.OnRoundStart.WC_GL_Apply <- function ()
-{
-    ::WC_GL_Apply();
-};
-
-::WC_GL_Apply();
+    name = "GL",
+    className = "weapon_grenade_launcher",
+    clip = 1,
+    reserveMax = 15,
+    defaultReserveMax = 30,
+    convar = "ammo_grenadelauncher_max",
+    reloadSeconds = 2.0,
+    verbose = false
+});

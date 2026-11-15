@@ -128,7 +128,7 @@ WitchEventNotifier <-
 
         ::WN_MaxHealth[params.witchid] <- ::WN_GetDefaultWitchHealth();
 
-        ::NTF_BroadcastInline("tag_system", { key = "witch_spawned", subs = { WITCH = ::WN_GetVariantName(params.witchid) } });
+        ::NTF_BroadcastInline({ key = "witch_spawned", subs = { WITCH = ::WN_GetVariantName(params.witchid) } });
     }
 
     function OnGameEvent_witch_harasser_set(params)
@@ -174,7 +174,7 @@ WitchEventNotifier <-
         }
 
         ::NTF_Forget(::WN_AllMaps(), witchIdx);
-        ::NTF_Broadcast("tag_announcer", tIntroLines, tStatLines);
+        ::NTF_Broadcast(tIntroLines, tStatLines);
     }
 };
 
